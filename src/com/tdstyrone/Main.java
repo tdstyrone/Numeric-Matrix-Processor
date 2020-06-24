@@ -1,13 +1,17 @@
 package com.tdstyrone;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
+    
+    public Main(){}
 
     private static int matrixMenu(Scanner scanner){
-        System.out.println("1. Add matrices");
-        System.out.println("2. Multiply matrix to a constant");
-        System.out.println("3. Multiply matrices");
+        System.out.println("1. Add Matrices");
+        System.out.println("2. Multiply Matrix to a constant");
+        System.out.println("3. Multiply Matrices");
+        System.out.println("4. Transpose Matrix");
+        System.out.println("5. Calculate Determinant");
+        System.out.println("6. Inverse Matrix");
         System.out.println("0. Exit");
         System.out.print("Your Choice: ");
         return scanner.nextInt();
@@ -72,6 +76,102 @@ public class Main {
         }
     }
 
+    private static int[][] transposeMatrix(int[][] matrix){
+        int[][] transpose = new int[matrix[0].length][matrix.length];
+
+        for(int i = 0; i < matrix[0].length; i++){
+            for(int j = 0; j < matrix.length; j++){
+                transpose[i][j] = matrix[j][i];
+            }
+        }
+        return transpose;
+    }
+
+    private static Integer calculateDet(int[][] matrix){
+        int determinant = 0;
+        if(matrix.length == matrix[0].length){
+            if(matrix.length == 2){
+                determinant = ((matrix[0][0]*matrix[1][1])- matrix[0][1]*matrix[1][0]);
+            }
+            else{
+                for(int i = 0; i < matrix.length; i++){
+                    if (i % 2 == 0){
+                        determinant += matrix[0][i] * calculateDet(matrixMinor(matrix, 0, i));
+                    }
+                    else{
+                        determinant -= matrix[0][i] * calculateDet(matrixMinor(matrix, 0, i));
+                    }
+                }
+            }
+            return determinant;
+        }
+        else {
+            return null;
+        }
+    }
+
+    private static int[][] matrixMinor(int[][] matrix, int row, int col){
+        int[][] tempMatrix = new int[matrix.length-1][matrix[0].length-1];
+        int tempRow = 0;
+        int tempCol = 0;
+
+        for(int i = 0; i < matrix.length; i++){
+            for(int j = 0; j < matrix.length; j++){
+                if( i != row && j != col){
+                    tempMatrix[tempRow][tempCol] = matrix[i][j];
+                    tempCol++;
+                }
+            }
+            tempCol = 0;
+            if (i != row)
+                tempRow++;
+        }
+        return tempMatrix;
+    }
+
+    private static void invertMatrix(int[][] matrix){
+        Double determinant = Double.valueOf(calculateDet(matrix));
+
+        if (determinant != 0){
+            int[][] tempMatrix = transposeMatrix(matrixCofactor(matrix));
+            Double[][] inverse = new Double[matrix.length][matrix.length];
+            for(int i = 0; i < matrix.length; i++){
+                for(int j = 0; j < matrix[0].length; j++){
+                    inverse[i][j] = (1/determinant) * tempMatrix[i][j];
+                }
+            }
+            System.out.println("The Inverse of the matrix is: ");
+            for(Double[] row : inverse) {
+                for (int column = 0; column < row.length; column++) {
+                    System.out.printf("%.2f ", row[column]);
+                }
+                System.out.println();
+            }
+        }
+        else{
+            System.out.println("ERROR");
+        }
+    }
+
+    private static int[][] matrixCofactor(int[][] matrix){
+        int[][] cofactor = new int[matrix.length][matrix.length];
+
+        for (int i = 0; i < matrix.length; i++){
+            for (int j = 0; j < matrix[0].length; j++){
+                if ((i+j)%2 == 0) {
+                    cofactor[i][j] = calculateDet(matrixMinor(matrix,i,j));
+                }
+                else {
+                    cofactor[i][j] = -1*(calculateDet(matrixMinor(matrix,i,j)));
+                }
+            }
+        }
+        return cofactor;
+    }
+
+
+
+
     private static void printMatrix(int[][] matrix, int choice){
 
         switch (choice){
@@ -83,6 +183,12 @@ public class Main {
                 break;
             case 3:
                 System.out.println("The multiplication result is: ");
+                break;
+            case 4:
+                System.out.println("The transpose matrix result is: ");
+                break;
+            case 5:
+                System.out.println("The Determinant of the matrix is: ");
                 break;
             default:
                 break;
@@ -112,7 +218,7 @@ public class Main {
                     break;
                 case 2:
                     try {
-                        System.out.println("Enter scalar constant: ");
+                        System.out.print("Enter scalar constant: ");
                         int constant = scanner.nextInt();
                         printMatrix(scaleMatrix(inputMatrix(scanner), constant), choice);
                     }
@@ -125,6 +231,30 @@ public class Main {
                         printMatrix(multiplyMatrix(inputMatrix(scanner), inputMatrix(scanner)), choice);
                     }
                     catch (NullPointerException e){
+                        System.out.println("ERROR");
+                    }
+                    break;
+                case 4:
+                    try {
+                        printMatrix(transposeMatrix(inputMatrix(scanner)), choice);
+                    }
+                    catch(NullPointerException e){
+                        System.out.println("ERROR");
+                    }
+                    break;
+                case 5:
+                    try{
+                        System.out.println("The Determinant is: " + calculateDet(inputMatrix(scanner)));
+                    }
+                    catch(NullPointerException e){
+                        System.out.println("ERROR");
+                    }
+                    break;
+                case 6:
+                    try{
+                        invertMatrix(inputMatrix(scanner));
+                    }
+                    catch(NullPointerException e){
                         System.out.println("ERROR");
                     }
                     break;
