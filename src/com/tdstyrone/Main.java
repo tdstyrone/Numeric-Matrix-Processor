@@ -2,7 +2,7 @@ package com.tdstyrone;
 import java.util.Scanner;
 
 public class Main {
-    
+
     public Main(){}
 
     private static int matrixMenu(Scanner scanner){
@@ -133,11 +133,26 @@ public class Main {
         Double determinant = Double.valueOf(calculateDet(matrix));
 
         if (determinant != 0){
-            int[][] tempMatrix = transposeMatrix(matrixCofactor(matrix));
-            Double[][] inverse = new Double[matrix.length][matrix.length];
-            for(int i = 0; i < matrix.length; i++){
-                for(int j = 0; j < matrix[0].length; j++){
-                    inverse[i][j] = (1/determinant) * tempMatrix[i][j];
+            Double[][] inverse = new Double[matrix.length][matrix[0].length];
+            if(matrix.length == 2){
+                int temp = matrix[0][0];
+                matrix[0][0] = matrix[1][1];
+                matrix[1][1] = temp;
+                matrix[1][0] *= -1;
+                matrix[0][1] *= -1;
+
+                for(int i = 0; i < matrix.length; i++){
+                    for(int j = 0; j < matrix[0].length; j++){
+                        inverse[i][j] = (1/determinant) * matrix[i][j];
+                    }
+                }
+            }
+            else {
+                int[][] tempMatrix = transposeMatrix(matrixCofactor(matrix));
+                for (int i = 0; i < matrix.length; i++) {
+                    for (int j = 0; j < matrix[0].length; j++) {
+                        inverse[i][j] = (1 / determinant) * tempMatrix[i][j];
+                    }
                 }
             }
             System.out.println("The Inverse of the matrix is: ");
@@ -154,7 +169,7 @@ public class Main {
     }
 
     private static int[][] matrixCofactor(int[][] matrix){
-        int[][] cofactor = new int[matrix.length][matrix.length];
+        int[][] cofactor = new int[matrix.length][matrix[0].length];
 
         for (int i = 0; i < matrix.length; i++){
             for (int j = 0; j < matrix[0].length; j++){
